@@ -53,7 +53,8 @@ def simulate(
     rm = (1 + voo_net) ** (1 / 12) - 1
 
     bal = loan
-    port = down + closing
+    rent_voo = down + closing
+    buy_voo = 0.0
     rows = []
 
     for m in range(n_hold):
@@ -76,13 +77,24 @@ def simulate(
 
         y = m // 12
         rent_m = rent_monthly * (1 + rent_inflation) ** y
-        add = abs(own_net - rent_m)
+        if rent_m > own_net:
+            add_rent = rent_m - own_net
+            add_buy = 0.0
+        elif own_net > rent_m:
+            add_rent = 0.0
+            add_buy = own_net - rent_m
+        else:
+            add_rent = 0.0
+            add_buy = 0.0
 
-        port = port * (1 + rm) + add
+        rent_voo = rent_voo * (1 + rm) + add_rent
+        buy_voo = buy_voo * (1 + rm) + add_buy
         equity = v - bal
-        rows.append({"month": m + 1, "equity": equity, "voo": port})
+        buy_total = equity + buy_voo
+        rows.append({"month": m + 1, "买房综合": buy_total, "租房+VOO": rent_voo})
 
-    return pd.DataFrame(rows), v - bal, port, pay
+    eq_end = v - bal
+    return pd.DataFrame(rows), eq_end, eq_end + buy_voo, rent_voo, pay
 
 
 st.set_page_config(page_title="买房 vs 租房投 VOO", layout="wide")
@@ -156,7 +168,7 @@ with st.sidebar:
     voo_annual = voo_ui / 100.0
     fee_annual = fee_ui / 100.0
 
-df, eq_end, voo_end, monthly_pi = simulate(
+df, eq_end, buy_total_end, rent_voo_end, monthly_pi = simulate(
     price,
     down_pct,
     closing_pct,
@@ -176,17 +188,18 @@ df, eq_end, voo_end, monthly_pi = simulate(
 )
 
 c1, c2, c3 = st.columns(3)
-c1.metric("期末房产净值（市价 − 剩余本金）", f"${eq_end:,.0f}")
-c2.metric("期末 VOO 市值", f"${voo_end:,.0f}")
-c3.metric("差额（房产 − VOO）", f"${eq_end - voo_end:,.0f}")
+c1.metric("期末买房综合（房净值 + 买房侧 VOO）", f"${buy_total_end:,.0f}")
+c2.metric("期末租房 + VOO", f"${rent_voo_end:,.0f}")
+c3.metric("差额（买房综合 − 租房+VOO）", f"${buy_total_end - rent_voo_end:,.0f}")
 
 st.caption(
-    "VOO 路径：初始 = 首付 + Closing；每月追加 = |买房净现金流 − 当月房租|（哪边住房更省，"
-    " 省下的差额都按同一规则投入 VOO）。不计卖出费用与资本利得税。"
+    "租房方案：初始 VOO = 首付 + Closing。若月租 > 买房月净开销，差额每月追加到本方案的 VOO。"
+    " 买房方案：若月租 < 买房月净开销，差额每月追加到买房侧的 VOO（与房产净值相加为买房综合）。"
+    " 不计卖出费用与资本利得税。"
 )
 
-chart = df.rename(columns={"equity": "房产净值", "voo": "VOO"})
-st.line_chart(chart.set_index("month")[["房产净值", "VOO"]])
+st.line_chart(df.set_index("month")[["买房综合", "租房+VOO"]])
 
 with st.expander("月供（本息）参考"):
     st.write(f"月供本金+利息约 **${monthly_pi:,.2f}**（未含税、保险、HOA、维修）")
+    st.write(f"期末纯房产净值（不含买房侧 VOO）**${eq_end:,.0f}**")

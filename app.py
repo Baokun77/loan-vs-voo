@@ -195,17 +195,17 @@ df, eq_end, buy_total_end, rent_voo_end, monthly_pi = simulate(
 
 c1, c2, c3 = st.columns(3)
 c1.metric(
-    f"买房这条线 · 持有期结束（第 {hold_years} 年）总财富",
+    f"买房加投VOO（第 {hold_years} 年）总财富",
     f"${buy_total_end:,.0f}",
     help="自住房产净值 + 若每月房租比买房现金支出更贵，则把「多出来的房租」当成同等金额坚持买 VOO 的账户。",
 )
 c2.metric(
-    f"租房这条线 · 持有期结束（第 {hold_years} 年）总财富",
+    f"租房加投VOO（第 {hold_years} 年）总财富",
     f"${rent_voo_end:,.0f}",
     help="一开始把本应付的首付和 Closing 全部买 VOO；若每月买房现金支出比房租更贵，把差额继续买 VOO。",
 )
 c3.metric(
-    f"两条线相差多少（第 {hold_years} 年结束时）",
+    f"买房加投VOO和租房加投VOO的财富差（第 {hold_years} 年结束时）",
     f"${buy_total_end - rent_voo_end:,.0f}",
     help="买房总财富 − 租房总财富；正数表示在设定的持有年数结束时，买房这条线更富。",
 )

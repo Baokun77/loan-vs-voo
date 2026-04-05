@@ -1,0 +1,11 @@
+[run]
+source =
+    simulation
+    charts
+    i18n
+omit =
+    */tests/*
+
+[report]
+fail_under = 80
+show_missing = true

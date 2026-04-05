@@ -1,3 +1,4 @@
+import altair as alt
 import streamlit as st
 import pandas as pd
 
@@ -216,12 +217,86 @@ st.caption(
     " 未计卖房佣金、资本利得税等。"
 )
 
-_cols = ["买房：房产 + 省下的钱买 VOO", "租房：首付入市 + 省下的钱买 VOO"]
-_yearly = df[df["month"] % 12 == 0].copy()
-_yearly["year"] = (_yearly["month"] // 12).astype(int)
-_chart = _yearly.set_index("year")[_cols]
-_chart.index.name = "year"
-st.line_chart(_chart)
+COL_BUY = "买房：房产 + 省下的钱买 VOO"
+COL_RENT = "租房：首付入市 + 省下的钱买 VOO"
+_plot = df[["month", COL_BUY, COL_RENT]].rename(
+    columns={COL_BUY: "买房路径", COL_RENT: "租房路径"}
+)
+_plot["差额_买减租"] = _plot["买房路径"] - _plot["租房路径"]
+_plot["hover_y"] = (_plot["买房路径"] + _plot["租房路径"]) / 2
+
+
+def _cmp_row(r):
+    d = r["差额_买减租"]
+    b, z = r["买房路径"], r["租房路径"]
+    if d > 0:
+        lead = "此时买房路径（房产净值 + 按规则买 VOO）更高。"
+    elif d < 0:
+        lead = "此时租房路径（首付/Closing 入市 + 按规则买 VOO）更高。"
+    else:
+        lead = "此时两条路径总财富相同。"
+    return (
+        f"第 {int(r['month'])} 个月末：买房路径 ${b:,.2f}，租房路径 ${z:,.2f}，"
+        f"差额（买−租）${d:+,.2f}。{lead}"
+    )
+
+
+_plot["对比说明"] = _plot.apply(_cmp_row, axis=1)
+
+_mmax = int(_plot["month"].max())
+_tick_vals = list(range(12, _mmax + 1, 12))
+_x = alt.X(
+    "month:Q",
+    title="月份",
+    axis=alt.Axis(values=_tick_vals),
+)
+
+_long = _plot.melt(
+    id_vars=["month"],
+    value_vars=["买房路径", "租房路径"],
+    var_name="线路",
+    value_name="财富",
+)
+_line = (
+    alt.Chart(_long)
+    .mark_line(strokeWidth=2)
+    .encode(
+        _x,
+        alt.Y("财富:Q", title="财富 ($)", scale=alt.Scale(zero=False)),
+        alt.Color(
+            "线路:N",
+            title="",
+            scale=alt.Scale(range=["#4C78A8", "#F58518"]),
+        ),
+    )
+)
+_hover = (
+    alt.Chart(_plot)
+    .mark_point(size=100, opacity=0)
+    .encode(
+        _x,
+        alt.Y(
+            "hover_y:Q",
+            scale=alt.Scale(zero=False),
+            axis=alt.Axis(labels=False, title=None),
+        ),
+        tooltip=[
+            alt.Tooltip("month:Q", title="月份"),
+            alt.Tooltip("买房路径:Q", title="买房路径 ($)", format=",.2f"),
+            alt.Tooltip("租房路径:Q", title="租房路径 ($)", format=",.2f"),
+            alt.Tooltip("差额_买减租:Q", title="差额 买−租 ($)", format=",.2f"),
+            alt.Tooltip("对比说明:N", title="对比含义"),
+        ],
+    )
+)
+_chart = (
+    (_line + _hover)
+    .resolve_scale(y="shared")
+    .properties(height=420)
+    .configure_legend(orient="top")
+    .interactive()
+)
+st.altair_chart(_chart, use_container_width=True)
 
 with st.expander("月供与「纯房子」值多少钱"):
     st.write(

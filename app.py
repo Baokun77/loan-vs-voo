@@ -128,41 +128,41 @@ with st.sidebar:
     )
 
     st.header("房价与贷款")
-    price = st.number_input("房屋成交价（总价，美元）", min_value=50_000, value=1_800_000, step=50_000)
-    down_pct_ui = st.slider("首付占房价多少（其余为贷款）", 5, 50, 20, 1, format="%d%%")
-    closing_pct_ui = st.slider("过户杂费 Closing 占房价（律师/产权/登记等）", 0.0, 5.0, 1.5, 0.1, format="%.1f%%")
-    annual_rate_ui = st.slider("按揭年利率（等额本息、固定利率假设）", 0.0, 12.0, 3.0, 0.1, format="%.1f%%")
-    loan_years = st.slider("按揭分多少年还清（决定月供）", 1, 40, 30, 1)
-    hold_years = st.slider("打算持有这套房多少年（对比区间）", 1, 40, 30, 1)
+    price = st.number_input("房价 ($)", min_value=50_000, value=1_800_000, step=50_000)
+    down_pct_ui = st.slider("首付比例", 5, 50, 20, 1, format="%d%%")
+    closing_pct_ui = st.slider("Closing 占房价", 0.0, 5.0, 1.5, 0.1, format="%.1f%%")
+    annual_rate_ui = st.slider("房贷利率（年化）", 0.0, 12.0, 3.0, 0.1, format="%.1f%%")
+    loan_years = st.slider("贷款年数（本息）", 1, 40, 30, 1)
+    hold_years = st.slider("模拟持有年数", 1, 40, 30, 1)
     st.divider()
 
-    st.header("持有成本（自住）")
-    hoa_monthly = st.number_input("HOA / 物业费（每月，美元）", min_value=0, value=400, step=50)
-    appreciation_ui = st.slider("假设房子每年涨价多少（复利）", -5.0, 15.0, 4.0, 0.5, format="%.1f%%")
-    prop_tax_ui = st.slider("房产税简化：每年 = 市价 × 该比例（加州可再调低）", 0.0, 3.0, 1.2, 0.1, format="%.1f%%")
-    maint_ui = st.slider("维修预留：每年约为市价的几成", 0.0, 4.0, 1.0, 0.25, format="%.2f%%")
-    insurance_annual = st.number_input("房屋保险总保费（按年，美元）", min_value=0, value=1800, step=100)
+    st.header("持有成本")
+    hoa_monthly = st.number_input("HOA（月）($)", min_value=0, value=400, step=50)
+    appreciation_ui = st.slider("房价年化增值", -5.0, 15.0, 4.0, 0.5, format="%.1f%%")
+    prop_tax_ui = st.slider("房产税有效税率 / 年（占市价）", 0.0, 3.0, 1.2, 0.1, format="%.1f%%")
+    maint_ui = st.slider("维修占房价 / 年", 0.0, 4.0, 1.0, 0.25, format="%.2f%%")
+    insurance_annual = st.number_input("房屋保险（年）($)", min_value=0, value=1800, step=100)
     st.divider()
 
     st.header("税务")
     _mi = st.selectbox(
-        "联邦所得税「工资 ordinary」边际税率 — 用来估算房贷利息能省多少税",
+        "联邦 ordinary 边际税率（抵房贷利息）",
         range(len(FED_MARGINAL_LABELS)),
         index=4,
         format_func=lambda i: FED_MARGINAL_LABELS[i],
-        help="按 IRS 联邦 ordinary income 七档（2025 无 20% 这一档）。未含州税；也未判断你该用标准扣除还是分项。",
+        help="IRS 联邦所得税 ordinary income 挡位（2025：10/12/22/24/32/35/37%）。不含州税；标准扣除是否更优未建模。",
     )
     marginal_rate = FED_MARGINAL_RATES[_mi]
     st.divider()
 
-    st.header("若选择租房")
-    rent_monthly = st.number_input("同等居住条件下，第一个月房租（美元）", min_value=0, value=3600, step=100)
-    rent_infl_ui = st.slider("房租每年涨多少（按年跳档，类似通胀）", 0.0, 10.0, 3.0, 0.5, format="%.1f%%")
+    st.header("租房与通胀")
+    rent_monthly = st.number_input("月租 — 起租 ($)", min_value=0, value=3600, step=100)
+    rent_infl_ui = st.slider("房租年涨幅（对齐通胀）", 0.0, 10.0, 3.0, 0.5, format="%.1f%%")
     st.divider()
 
-    st.header("不买房时投股市（按 VOO 一类标普 500 ETF）")
-    voo_ui = st.slider("假设股市长期名义年化回报（含分红、扣费前粗算）", -5.0, 20.0, 10.0, 0.5, format="%.1f%%")
-    fee_ui = st.slider("ETF 管理费（每年占资产的比例，从上面回报里减掉）", 0.0, 1.0, 0.03, 0.01, format="%.2f%%")
+    st.header("VOO")
+    voo_ui = st.slider("VOO 名义年化回报", -5.0, 20.0, 10.0, 0.5, format="%.1f%%")
+    fee_ui = st.slider("VOO 费率 / 年", 0.0, 1.0, 0.03, 0.01, format="%.2f%%")
 
     down_pct = down_pct_ui / 100.0
     closing_pct = closing_pct_ui / 100.0
@@ -195,19 +195,19 @@ df, eq_end, buy_total_end, rent_voo_end, monthly_pi = simulate(
 
 c1, c2, c3 = st.columns(3)
 c1.metric(
-    "买房这条线期末总财富",
+    f"买房这条线 · 持有期结束（第 {hold_years} 年）总财富",
     f"${buy_total_end:,.0f}",
     help="自住房产净值 + 若每月房租比买房现金支出更贵，则把「多出来的房租」当成同等金额坚持买 VOO 的账户。",
 )
 c2.metric(
-    "租房这条线期末总财富",
+    f"租房这条线 · 持有期结束（第 {hold_years} 年）总财富",
     f"${rent_voo_end:,.0f}",
     help="一开始把本应付的首付和 Closing 全部买 VOO；若每月买房现金支出比房租更贵，把差额继续买 VOO。",
 )
 c3.metric(
-    "两条线相差多少",
+    f"两条线相差多少（第 {hold_years} 年结束时）",
     f"${buy_total_end - rent_voo_end:,.0f}",
-    help="买房总财富 − 租房总财富；正数表示按本模型买房这条线期末更富。",
+    help="买房总财富 − 租房总财富；正数表示在设定的持有年数结束时，买房这条线更富。",
 )
 
 st.caption(
@@ -222,5 +222,5 @@ st.line_chart(_chart)
 with st.expander("月供与「纯房子」值多少钱"):
     st.write(
         f"等额本息下，**仅本金+利息**月供约 **${monthly_pi:,.2f}**（不含税、保险、HOA、维修）。 "
-        f"期末若只算房子、不算任何股票：**${eq_end:,.0f}**（当时市价 − 剩余房贷）。"
+        f"持有期结束（第 {hold_years} 年）若只算房子、不算任何股票：**${eq_end:,.0f}**（当时市价 − 剩余房贷）。"
     )

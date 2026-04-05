@@ -78,11 +78,11 @@ def simulate(
         y = m // 12
         rent_m = rent_monthly * (1 + rent_inflation) ** y
         if rent_m > own_net:
-            add_rent = rent_m - own_net
-            add_buy = 0.0
-        elif own_net > rent_m:
             add_rent = 0.0
-            add_buy = own_net - rent_m
+            add_buy = rent_m - own_net
+        elif own_net > rent_m:
+            add_rent = own_net - rent_m
+            add_buy = 0.0
         else:
             add_rent = 0.0
             add_buy = 0.0
@@ -193,8 +193,8 @@ c2.metric("期末租房 + VOO", f"${rent_voo_end:,.0f}")
 c3.metric("差额（买房综合 − 租房+VOO）", f"${buy_total_end - rent_voo_end:,.0f}")
 
 st.caption(
-    "租房方案：初始 VOO = 首付 + Closing。若月租 > 买房月净开销，差额每月追加到本方案的 VOO。"
-    " 买房方案：若月租 < 买房月净开销，差额每月追加到买房侧的 VOO（与房产净值相加为买房综合）。"
+    "租房方案：初始 VOO = 首付 + Closing。若月租 < 买房月净开销，差额每月追加到本方案的 VOO。"
+    " 买房方案：若月租 > 买房月净开销，差额每月追加到买房侧的 VOO（与房产净值相加为买房综合）。"
     " 不计卖出费用与资本利得税。"
 )
 

@@ -94,8 +94,8 @@ def simulate(
         rows.append(
             {
                 "month": m + 1,
-                "买房：房产 + 省下的钱买 VOO": buy_total,
-                "租房：首付入市 + 省下的钱买 VOO": rent_voo,
+                "买房：房产 + 省下的钱买 VOO": round(buy_total, 2),
+                "租房：首付入市 + 省下的钱买 VOO": round(rent_voo, 2),
             }
         )
 
@@ -196,17 +196,17 @@ df, eq_end, buy_total_end, rent_voo_end, monthly_pi = simulate(
 c1, c2, c3 = st.columns(3)
 c1.metric(
     f"买房加投VOO（第 {hold_years} 年）总财富",
-    f"${buy_total_end:,.0f}",
+    f"${buy_total_end:,.2f}",
     help="自住房产净值 + 若每月房租比买房现金支出更贵，则把「多出来的房租」当成同等金额坚持买 VOO 的账户。",
 )
 c2.metric(
     f"租房加投VOO（第 {hold_years} 年）总财富",
-    f"${rent_voo_end:,.0f}",
+    f"${rent_voo_end:,.2f}",
     help="一开始把本应付的首付和 Closing 全部买 VOO；若每月买房现金支出比房租更贵，把差额继续买 VOO。",
 )
 c3.metric(
     f"买房加投VOO和租房加投VOO的财富差（第 {hold_years} 年结束时）",
-    f"${buy_total_end - rent_voo_end:,.0f}",
+    f"${buy_total_end - rent_voo_end:,.2f}",
     help="买房总财富 − 租房总财富；正数表示在设定的持有年数结束时，买房这条线更富。",
 )
 
@@ -216,11 +216,15 @@ st.caption(
     " 未计卖房佣金、资本利得税等。"
 )
 
-_chart = df.set_index("month")[["买房：房产 + 省下的钱买 VOO", "租房：首付入市 + 省下的钱买 VOO"]]
+_cols = ["买房：房产 + 省下的钱买 VOO", "租房：首付入市 + 省下的钱买 VOO"]
+_yearly = df[df["month"] % 12 == 0].copy()
+_yearly["year"] = (_yearly["month"] // 12).astype(int)
+_chart = _yearly.set_index("year")[_cols]
+_chart.index.name = "year"
 st.line_chart(_chart)
 
 with st.expander("月供与「纯房子」值多少钱"):
     st.write(
         f"等额本息下，**仅本金+利息**月供约 **${monthly_pi:,.2f}**（不含税、保险、HOA、维修）。 "
-        f"持有期结束（第 {hold_years} 年）若只算房子、不算任何股票：**${eq_end:,.0f}**（当时市价 − 剩余房贷）。"
+        f"持有期结束（第 {hold_years} 年）若只算房子、不算任何股票：**${eq_end:,.2f}**（当时市价 − 剩余房贷）。"
     )

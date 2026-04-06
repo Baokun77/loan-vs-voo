@@ -56,10 +56,25 @@ I18N = {
         "metric_rent_h": "一开始把本应付的首付和 Closing 全部买 VOO；若每月买房现金支出比房租更贵，把差额继续买 VOO。",
         "metric_diff": "差值（第 {y} 年）",
         "metric_diff_h": "买房总财富 − 租房总财富；正数表示在设定的持有年数结束时，买房这条线更富。",
-        "caption": "规则简述：租房线 — 首付与 Closing 先投入 VOO；之后只要「买房月供+税+HOA+维修+保险−利息抵税」高于房租，就把差额继续投进 VOO。买房线 — 持有房产；只要房租高于上述买房现金支出，就把差额当作同步买 VOO 的储蓄。未计卖房佣金、资本利得税等。",
+        "caption": "每月按侧栏规则把「买房 vs 租房」现金流差额投入 VOO。**细则与未建模项**见下方「假设与限制」。",
+        "exp_assumptions_title": "假设与限制（请先读）",
+        "exp_assumptions_body": """
+- **VOO 回报**为固定**名义**年化假设，**不是**预测；结论对回报与房价增值高度敏感。
+- **联邦税**仅按 ordinary 边际税率抵减**房贷利息**；**不含州税**；**未**比较分项扣除 vs 标准扣除。
+- **未计**卖房佣金、房产/股票资本利得税、搬家、交易成本等。
+- 房价、房租、利率等均为模型输入；与真实市场无关。
+""",
+        "conclusion_buy": "第 **{y}** 年末：在以上假设下，**买房**路径总财富更高，高出约 **${d}**（买房 − 租房）。",
+        "conclusion_rent": "第 **{y}** 年末：在以上假设下，**租房**路径总财富更高，高出约 **${d}**（租房 − 买房）。",
+        "conclusion_tie": "第 **{y}** 年末：在以上假设下，两条路径总财富相同。",
+        "hdr_presets": "场景预设",
+        "preset_base": "基准",
+        "preset_hi_rate": "高利率",
+        "preset_soft": "低回报",
         "legend_buy": "买房路径",
         "legend_rent": "租房路径",
         "ax_month": "月份",
+        "ax_year": "持有年数",
         "ax_wealth": "财富 ($)",
         "tt_month": "月份",
         "tt_buy": "买房路径 ($)",
@@ -109,10 +124,25 @@ I18N = {
         "metric_rent_h": "Down payment + closing invested in VOO at start; if buy cash cost exceeds rent, the gap is added to VOO.",
         "metric_diff": "Diff (year {y})",
         "metric_diff_h": "Positive means the buy path ends higher under this model.",
-        "caption": "Rent path: invest down + closing in VOO first; whenever buy-side cash cost (PITI-like net of interest deduction) exceeds rent, add the gap to VOO. Buy path: own the home; whenever rent exceeds that buy-side cash cost, invest the gap on the buy-side VOO. Excludes sale costs and cap gains tax.",
+        "caption": "Each month, cash-flow gaps vs rent go into VOO per sidebar rules. **Details and exclusions** are under “Assumptions & limits.”",
+        "exp_assumptions_title": "Assumptions & limits (read first)",
+        "exp_assumptions_body": """
+- **VOO return** is a fixed **nominal** annual assumption, **not** a forecast; results are highly sensitive to return and home-price growth.
+- **Federal tax** only models **mortgage interest** shield at the **ordinary marginal** rate; **no state tax**; **does not** compare itemized vs standard deduction.
+- **Excludes** sale commissions, capital gains (home and stocks), moving costs, and transaction frictions.
+- All inputs are model assumptions, not market quotes.
+""",
+        "conclusion_buy": "After **{y}** years, under these assumptions the **buy** path is ahead by about **${d}** (buy − rent).",
+        "conclusion_rent": "After **{y}** years, under these assumptions the **rent** path is ahead by about **${d}** (rent − buy).",
+        "conclusion_tie": "After **{y}** years, under these assumptions both paths end at the same total wealth.",
+        "hdr_presets": "Presets",
+        "preset_base": "Baseline",
+        "preset_hi_rate": "High mortgage rate",
+        "preset_soft": "Low return",
         "legend_buy": "Buy path",
         "legend_rent": "Rent path",
         "ax_month": "Month",
+        "ax_year": "Years held",
         "ax_wealth": "Wealth ($)",
         "tt_month": "Month",
         "tt_buy": "Buy path ($)",

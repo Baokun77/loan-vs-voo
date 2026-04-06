@@ -33,16 +33,26 @@ def wealth_paths_chart(df: pd.DataFrame, T: Callable[..., str]) -> alt.Chart:
 
     plot["cmp_tip"] = plot.apply(cmp_row, axis=1)
 
+    plot["yr"] = plot["month"] / 12.0
     mmax = int(plot["month"].max())
-    tick_vals = list(range(12, mmax + 1, 12))
+    ny = max(1, (mmax + 11) // 12)
+    if ny <= 20:
+        tick_yr = [float(y) for y in range(1, ny + 1)]
+    else:
+        step = max(1, ny // 8)
+        tick_yr = list(range(1, ny + 1, step))
+        if tick_yr[-1] != ny:
+            tick_yr.append(ny)
+        tick_yr = [float(y) for y in tick_yr]
+
     x_enc = alt.X(
-        "month:Q",
-        title=T("ax_month"),
-        axis=alt.Axis(values=tick_vals),
+        "yr:Q",
+        title=T("ax_year"),
+        axis=alt.Axis(values=tick_yr),
     )
 
     long_df = plot.melt(
-        id_vars=["month"],
+        id_vars=["month", "yr"],
         value_vars=[lb, lr],
         var_name="series",
         value_name="wealth",
@@ -56,7 +66,7 @@ def wealth_paths_chart(df: pd.DataFrame, T: Callable[..., str]) -> alt.Chart:
             alt.Color(
                 "series:N",
                 title="",
-                scale=alt.Scale(range=["#4C78A8", "#F58518"]),
+                scale=alt.Scale(range=["#2d5a3d", "#c45c26"]),
             ),
         )
     )

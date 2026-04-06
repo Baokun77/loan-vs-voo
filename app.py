@@ -214,6 +214,23 @@ with c3:
 
 st.caption(T("caption"))
 
+with st.expander(T("exp_formula_title")):
+    st.markdown(T("exp_formula_intro"))
+    st.markdown(T("exp_formula_c"))
+    st.latex(
+        r"r_m = (1 + g)^{1/12} - 1,\quad g = r_{\mathrm{VOO}} - f_{\mathrm{VOO}}"
+    )
+    st.latex(
+        r"S_{t+1} = S_t(1+r_m) + \max(0,\, C_t - R_t),\quad S_0 = D"
+    )
+    st.latex(r"W_{\mathrm{rent}} = S_T")
+    st.latex(
+        r"B_{t+1} = B_t(1+r_m) + \max(0,\, R_t - C_t),\quad B_0 = 0"
+    )
+    st.latex(r"E_t = H_t - L_t")
+    st.latex(r"W_{\mathrm{buy}} = E_T + B_T")
+    st.caption(T("exp_formula_note"))
+
 # ── Chart ─────────────────────────────────────────────────────────────────────
 with st.container(border=True):
     st.altair_chart(wealth_paths_chart(df, T), use_container_width=True)

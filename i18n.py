@@ -72,6 +72,10 @@ I18N = {
         "cmp_fmt": "第 {m} 个月末：买房路径 ${b}，租房路径 ${z}，差额（买−租）${d}。{lead}",
         "exp_title": "月供与「纯房子」值多少钱",
         "exp_body": "等额本息下，**仅本金+利息**月供约 **${pi}**（不含税、保险、HOA、维修）。持有期结束（第 {y} 年）若只算房子、不算任何股票：**${eq}**（当时市价 − 剩余房贷）。",
+        "exp_formula_title": "两个「总财富」的算式（与程序一致）",
+        "exp_formula_intro": "下标 t 为递推步（t = 0, …, T−1），共 **T = 持有年数×12** 步。**D** 为首付与 Closing 之和。执行完 **T** 步后，**S_T** 即「租房加投VOO」总财富；**E_T + B_T** 即「买房加投VOO」总财富（**E_T** 为第 T 步末房产净值）。",
+        "exp_formula_c": "**C_t**：该月买房路径现金支出（月供本息 + 房产税/月 + 房屋保险/月 + HOA + 维修/月 − 当月房贷利息×联邦 ordinary 边际税率）。**R_t**：该月房租（按年涨租在每年内分月相同）。",
+        "exp_formula_note": "程序里每月先按复利滚存 VOO，再把当月可投资差额加到账户；上式与之一致。",
     },
     "en": {
         "page_title": "Buy vs rent + VOO",
@@ -121,5 +125,9 @@ I18N = {
         "cmp_fmt": "End of month {m}: buy path ${b}, rent path ${z}, diff (buy−rent) ${d}. {lead}",
         "exp_title": "Mortgage P&I & home-only equity",
         "exp_body": "Fixed P&I payment about **${pi}** (excludes tax, insurance, HOA, maintenance). At end of year {y}, home-only net (no stocks): **${eq}** (value − remaining loan).",
+        "exp_formula_title": "Formulas for the two “total wealth” metrics (match the code)",
+        "exp_formula_intro": "Index t is the monthly update step (t = 0, …, T−1), **T = holding years × 12**. **D** is down payment plus closing. After **T** steps, **S_T** is the rent-path total wealth; **E_T + B_T** is the buy-path total wealth (**E_T** is home equity at the last step).",
+        "exp_formula_c": "**C_t**: monthly buy-side cash (P&I + property tax/12 + home insurance/12 + HOA + maintenance/12 − that month’s mortgage interest × federal ordinary marginal rate). **R_t**: monthly rent (stepped up once per year in the model).",
+        "exp_formula_note": "Each month the code compounds the VOO balance first, then adds the investable gap; the recurrences below are equivalent.",
     },
 }

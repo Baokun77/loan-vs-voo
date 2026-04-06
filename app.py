@@ -146,14 +146,16 @@ def metric_card(label: str, value: str, dark: bool = False) -> str:
     )
 
 
-if "lang" not in st.session_state:
+if "lang" not in st.session_state or st.session_state.lang not in I18N:
     st.session_state.lang = "zh"
 
 LANG = st.session_state.lang
 
 
 def T(key, **kwargs):
-    s = I18N[LANG][key]
+    s = I18N[LANG].get(key)
+    if s is None:
+        s = I18N["en"].get(key) or I18N["zh"].get(key) or key
     return s.format(**kwargs) if kwargs else s
 
 
